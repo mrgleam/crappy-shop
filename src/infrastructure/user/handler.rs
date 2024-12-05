@@ -1,8 +1,8 @@
 use actix_web::{
-    body::BoxBody, http::header::ContentType, web, HttpRequest, HttpResponse, Responder
+    body::BoxBody, http::header::ContentType, web, HttpRequest, HttpResponse, Responder,
 };
-use serde::Serialize;
 use sea_orm::EntityTrait;
+use serde::Serialize;
 
 use crate::infrastructure::AppState;
 
@@ -26,25 +26,27 @@ impl Responder for User {
     }
 }
 
-pub async fn index(
-    db: web::Data<AppState>,
-) -> impl Responder {
+pub async fn index(db: web::Data<AppState>) -> impl Responder {
     let users = UserEntity::find().all(&db.conn).await;
     match users {
         Ok(users) => {
-            let users: Vec<User> = users.iter()
-                .map(|user| User { 
-                    id: user.id.to_string(), 
-                    email: user.email.clone() 
+            let users: Vec<User> = users
+                .iter()
+                .map(|user| User {
+                    id: user.id.to_string(),
+                    email: user.email.clone(),
                 })
                 .collect();
             HttpResponse::Ok().json(users)
-        },
+        }
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
 
 pub async fn get_by_id(path: web::Path<String>) -> impl Responder {
     let id = path.into_inner();
-    User { id: id, email: "user".into() }
+    User {
+        id: id,
+        email: "user".into(),
+    }
 }

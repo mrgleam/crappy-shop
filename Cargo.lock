@@ -594,10 +594,13 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "chrono",
+ "do-notation",
+ "dotenvy",
  "log",
  "sea-orm",
  "serde",
  "serde_json",
+ "urlencoding",
 ]
 
 [[package]]
@@ -707,6 +710,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "do-notation"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3e16a80c1dda2cf52fa07106427d3d798b6331dca8155fcb8c39f7fc78f6dd2"
+
+[[package]]
 name = "dotenvy"
 version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -743,7 +752,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33d852cb9b869c2a9b3df2f71a3074817f01e1844f839a144f5fcef059a4eb5d"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -2567,7 +2576,7 @@ dependencies = [
  "fastrand",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -2785,6 +2794,12 @@ dependencies = [
  "idna",
  "percent-encoding",
 ]
+
+[[package]]
+name = "urlencoding"
+version = "2.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
 
 [[package]]
 name = "utf16_iter"

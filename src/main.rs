@@ -1,7 +1,10 @@
-mod infrastructure;
+mod config;
 mod database;
+mod environment;
+mod infrastructure;
 
-use actix_web::{web, get, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use config::Config;
 use infrastructure::AppState;
 use std::io::Error;
 
@@ -15,17 +18,15 @@ fn main() -> Result<(), Error> {
 }
 
 async fn init() -> Result<(), Error> {
-    let conn = database::new().await;
+    let config = Config::new();
+    let conn = database::new(config.database).await;
     let state = AppState { conn };
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(state.clone()))
             .service(health)
-            .service(
-                web::scope("/api")
-                    .configure(infrastructure::user::configure)
-            )
+            .service(web::scope("/api").configure(infrastructure::user::configure))
     })
     .bind(("127.0.0.1", 8080))?
     .run()

@@ -11,6 +11,7 @@ impl Config {
         port.parse::<u16>()
             .map_err(|_| "Invalid port number".into())
     }
+
     pub fn new() -> Self {
         // get env vars
         dotenvy::dotenv().ok();

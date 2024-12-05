@@ -1,39 +1,17 @@
-use actix_web::{
-    body::BoxBody, http::header::ContentType, web, HttpRequest, HttpResponse, Responder,
-};
-use sea_orm::EntityTrait;
-use serde::Serialize;
-
+use crate::domain::user::view::UserView;
 use crate::infrastructure::AppState;
-
-use super::repository::Entity as UserEntity;
-
-#[derive(Serialize)]
-struct User {
-    id: String,
-    email: String,
-}
-
-impl Responder for User {
-    type Body = BoxBody;
-
-    fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
-        let body = serde_json::to_string(&self).unwrap();
-
-        HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .body(body)
-    }
-}
+use actix_web::{web, HttpResponse, Responder};
+use entity::user;
+use sea_orm::EntityTrait;
 
 pub async fn index(db: web::Data<AppState>) -> impl Responder {
-    let users = UserEntity::find().all(&db.conn).await;
+    let users = user::Entity::find().all(&db.conn).await;
     match users {
         Ok(users) => {
-            let users: Vec<User> = users
+            let users: Vec<UserView> = users
                 .iter()
-                .map(|user| User {
-                    id: user.id.to_string(),
+                .map(|user| UserView {
+                    id: Some(user.id.to_string()),
                     email: user.email.clone(),
                 })
                 .collect();
@@ -43,10 +21,18 @@ pub async fn index(db: web::Data<AppState>) -> impl Responder {
     }
 }
 
-pub async fn get_by_id(path: web::Path<String>) -> impl Responder {
-    let id = path.into_inner();
-    User {
-        id: id,
-        email: "user".into(),
+pub async fn get_by_id(path: web::Path<i32>, db: web::Data<AppState>) -> impl Responder {
+    let user_id = path.into_inner();
+    let user = user::Entity::find_by_id(user_id).one(&db.conn).await;
+
+    match user {
+        Ok(user) => match user {
+            Some(user) => HttpResponse::Ok().json(UserView {
+                id: Some(user.id.to_string()),
+                email: user.email.clone(),
+            }),
+            None => HttpResponse::NotFound().body("User not found"),
+        },
+        Err(_) => HttpResponse::InternalServerError().body("Internal server error"),
     }
 }

@@ -1,5 +1,3 @@
-use chrono::DateTime;
-use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
 // The view for a UserView query, for a standard http application this should
@@ -8,6 +6,4 @@ use serde::{Deserialize, Serialize};
 pub struct UserView {
     pub id: Option<String>,
     pub email: String,
-    pub created_at: Option<DateTime<Utc>>,
-    pub deleted_at: Option<DateTime<Utc>>,
 }

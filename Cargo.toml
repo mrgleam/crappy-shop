@@ -3,7 +3,12 @@ name = "crappy_shop"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [".", "entity", "migration"]
+
 [dependencies]
+entity = { path = "entity" }
+migration = { path = "migration" }
 actix-web = "4.9.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

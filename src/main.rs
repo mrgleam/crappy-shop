@@ -1,11 +1,13 @@
 mod config;
 mod database;
+mod domain;
 mod environment;
 mod infrastructure;
 
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use config::Config;
 use infrastructure::AppState;
+use migration::{Migrator, MigratorTrait};
 use std::io::Error;
 
 #[get("/health")]
@@ -19,7 +21,10 @@ fn main() -> Result<(), Error> {
 
 async fn init() -> Result<(), Error> {
     let config = Config::new();
+
     let conn = database::new(config.database).await;
+    Migrator::up(&conn, None).await.expect("Failed to migrate");
+
     let state = AppState { conn };
 
     HttpServer::new(move || {

@@ -1,6 +1,6 @@
-use crate::domain::user::view::UserView;
 use crate::infrastructure::AppState;
-use actix_web::{web, HttpResponse, Responder};
+use crate::{domain::user::view::UserView, infrastructure::response};
+use actix_web::{web, Responder};
 use entity::user;
 use sea_orm::EntityTrait;
 
@@ -15,9 +15,9 @@ pub async fn index(db: web::Data<AppState>) -> impl Responder {
                     email: user.email.clone(),
                 })
                 .collect();
-            HttpResponse::Ok().json(users)
+            response::Default::new(users).json()
         }
-        Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+        Err(e) => response::Error::new(e.to_string()).json(),
     }
 }
 
@@ -27,12 +27,13 @@ pub async fn get_by_id(path: web::Path<i32>, db: web::Data<AppState>) -> impl Re
 
     match user {
         Ok(user) => match user {
-            Some(user) => HttpResponse::Ok().json(UserView {
+            Some(user) => response::Default::new(UserView {
                 id: Some(user.id.to_string()),
-                email: user.email.clone(),
-            }),
-            None => HttpResponse::NotFound().body("User not found"),
+                email: user.email,
+            })
+            .json(),
+            None => response::Error::new("User not found".into()).json(),
         },
-        Err(_) => HttpResponse::InternalServerError().body("Internal server error"),
+        Err(_) => response::Error::new("Internal server error".into()).json(),
     }
 }

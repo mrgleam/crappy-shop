@@ -7,23 +7,13 @@ pub struct Config {
 }
 
 impl Config {
-    fn parse_port(port: String) -> Result<u16, String> {
-        port.parse::<u16>()
-            .map_err(|_| "Invalid port number".into())
-    }
-
     pub fn new() -> Self {
         // get env vars
         dotenvy::dotenv().ok();
 
         let database = m! {
-          host <- get_var("DATABASE_HOST");
-          port <- get_var("DATABASE_PORT").and_then(Self::parse_port);
-          username <- get_var("DATABASE_USERNAME");
-          password <- get_var("DATABASE_PASSWORD");
-          name <- get_var("DATABASE_NAME");
-
-          return DatabaseConfig::new(host, port, username, password, name);
+          database_url <- get_var("DATABASE_URL");
+          return DatabaseConfig::new(database_url);
         }
         .expect("Error getting env vars");
 

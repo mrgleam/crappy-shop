@@ -20,7 +20,7 @@ fn main() -> Result<(), Error> {
 }
 
 async fn init() -> Result<(), Error> {
-    let config = Config::new();
+    let config = Config::load();
 
     let conn = database::new(config.database).await;
     Migrator::up(&conn, None).await.expect("Failed to migrate");
@@ -33,7 +33,7 @@ async fn init() -> Result<(), Error> {
             .service(health)
             .service(web::scope("/api").configure(infrastructure::user::configure))
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((config.http_server.host, config.http_server.port))?
     .run()
     .await
 }

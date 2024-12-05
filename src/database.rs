@@ -3,18 +3,8 @@ use std::time::Duration;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
 use log;
-use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
-pub struct DatabaseConfig {
-    pub database_url: String,
-}
-
-impl DatabaseConfig {
-    pub fn new(database_url: String) -> Self {
-        DatabaseConfig { database_url }
-    }
-}
+use crate::config::DatabaseConfig;
 
 pub async fn new(config: DatabaseConfig) -> DatabaseConnection {
     let mut opt = ConnectOptions::new(config.database_url);

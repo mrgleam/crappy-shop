@@ -832,6 +832,7 @@ name = "crappy_shop"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "async-trait",
  "chrono",
  "do-notation",
  "dotenvy",

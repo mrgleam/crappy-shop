@@ -1,9 +1,18 @@
 pub mod response;
 pub mod user;
 
+use std::sync::Arc;
+
 use sea_orm::DatabaseConnection;
 
-#[derive(Debug, Clone)]
 pub struct AppState {
-    pub conn: DatabaseConnection,
+    pub conn: Arc<DatabaseConnection>,
+}
+
+impl Clone for AppState {
+    fn clone(&self) -> Self {
+        AppState {
+            conn: Arc::clone(&self.conn),
+        }
+    }
 }

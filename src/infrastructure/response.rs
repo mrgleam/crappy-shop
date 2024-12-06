@@ -16,6 +16,15 @@ impl<T: Serialize> Default<T> {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct Created {}
+
+impl Created {
+    pub fn into() -> HttpResponse {
+        HttpResponse::Created().into()
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Error {
     message: String,
 }

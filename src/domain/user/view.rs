@@ -21,6 +21,7 @@ impl From<User> for UserView {
         UserView {
             id: user.id.map(|id| id.to_string()),
             email: user.email,
+            updated_at: Some(user.updated_at),
             ..Default::default()
         }
     }

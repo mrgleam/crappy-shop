@@ -32,19 +32,25 @@ impl Appregate for User {
         match command {
             UserCommand::Create { email, password } => {
                 let now = Utc::now();
-                let user = User {
+                let mut user = User {
                     email,
                     password,
                     created_at: now,
                     updated_at: now,
                     ..(*self)
                 };
+
+                service
+                    .encrypted_password(&mut user)
+                    .map_err(|e| e.to_string())?;
+
                 let created = service.create(&user).await;
+
                 match created {
                     Ok(id) => Ok(UserEvent::Created {
                         id,
                         email: user.email,
-                        date: user.created_at,
+                        date: now,
                     }),
                     Err(e) => Err(e.to_string()),
                 }
@@ -55,7 +61,7 @@ impl Appregate for User {
                 password,
             } => {
                 let now = Utc::now();
-                let user = User {
+                let mut user = User {
                     id: Some(id),
                     email,
                     password,
@@ -63,6 +69,10 @@ impl Appregate for User {
                     updated_at: now,
                     ..(*self)
                 };
+                service
+                    .encrypted_password(&mut user)
+                    .map_err(|e| e.to_string())?;
+
                 let updated = service.update(&user).await;
                 match updated {
                     Ok(_) => Ok(UserEvent::Updated {

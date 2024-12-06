@@ -12,6 +12,17 @@ impl UserService {
         Self { repository }
     }
 
+    pub fn encrypted_password<'a>(&self, user: &'a mut User) -> Result<&'a mut User, UserError> {
+        let encrypted = bcrypt::hash(user.password.clone(), bcrypt::DEFAULT_COST);
+        match encrypted {
+            Ok(result) => {
+                user.password = result;
+                Ok(user)
+            }
+            Err(e) => Err(UserError::from(e.to_string().as_str())),
+        }
+    }
+
     pub async fn create(&self, user: &User) -> Result<i32, UserError> {
         let created = self.repository.save(&user).await;
         match created {

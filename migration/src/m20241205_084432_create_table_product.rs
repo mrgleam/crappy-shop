@@ -27,7 +27,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .default(Expr::current_timestamp()),
                     )
-                    .col(timestamp(Product::DeletedAt).timestamp_with_time_zone())
+                    .col(timestamp_null(Product::DeletedAt).timestamp_with_time_zone())
                     .to_owned(),
             )
             .await

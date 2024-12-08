@@ -9,6 +9,8 @@ name = "migration"
 path = "src/lib.rs"
 
 [dependencies]
+entity = { path = "../entity" }
+fake = { version = "3.0.1", features = ["derive"] }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
 
 [dependencies.sea-orm-migration]

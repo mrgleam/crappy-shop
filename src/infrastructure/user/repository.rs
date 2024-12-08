@@ -14,6 +14,21 @@ impl UserRepository {
         Self { db }
     }
 
+    pub async fn find_all(&self) -> Vec<user::Model> {
+        let result = user::Entity::find().all(self.db.as_ref()).await;
+
+        result.unwrap_or_default()
+    }
+
+    pub async fn find_by_id(&self, id: i32) -> Result<user::Model, DbErr> {
+        let result = user::Entity::find_by_id(id).one(self.db.as_ref()).await;
+
+        match result {
+            Ok(Some(m)) => Ok(m),
+            _ => Err(DbErr::RecordNotFound("User not found".into())),
+        }
+    }
+
     pub async fn save(
         &self,
         user: &User,
@@ -39,13 +54,4 @@ impl UserRepository {
         user::Entity::update(model).exec(self.db.as_ref()).await?;
         Ok(UpdateResult { rows_affected: 1 })
     }
-
-    // pub async fn find_by_id(&self, id: i32) -> Result<Order, DbErr> {
-    //     let result = OrderModel::find_by_id(id).one(&self.db).await?;
-    //     result.map(|m| Order {
-    //         id: m.id,
-    //         product_id: m.product_id,
-    //         quantity: m.quantity,
-    //     }).ok_or_else(|| DbErr::RecordNotFound("Order not found".into()))
-    // }
 }

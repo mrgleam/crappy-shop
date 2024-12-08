@@ -6,48 +6,38 @@ use crate::domain::user::view::UserView;
 use crate::infrastructure::response;
 use crate::infrastructure::AppState;
 use actix_web::{web, Responder};
-use entity::user;
-use sea_orm::EntityTrait;
 
 use super::input::CreateUser;
 use super::input::UpdateUser;
 use super::repository::UserRepository;
-
 pub async fn index(db: web::Data<AppState>) -> impl Responder {
-    let users = user::Entity::find().all(db.conn.as_ref()).await;
-    match users {
-        Ok(users) => {
-            let users: Vec<UserView> = users
-                .iter()
-                .map(|user| UserView {
-                    id: Some(user.id.to_string()),
-                    email: user.email.clone(),
-                    ..Default::default()
-                })
-                .collect();
-            response::Default::new(users).json()
-        }
-        Err(e) => response::Error::new(e.to_string()).json(),
-    }
+    let users: Vec<UserView> = UserRepository::new(db.conn.clone())
+        .find_all()
+        .await
+        .iter()
+        .map(|user| UserView {
+            id: Some(user.id.to_string()),
+            email: user.email.clone(),
+            ..Default::default()
+        })
+        .collect();
+    response::Default::new(users).json()
 }
 
 pub async fn get_by_id(path: web::Path<i32>, db: web::Data<AppState>) -> impl Responder {
     let user_id = path.into_inner();
-    let user = user::Entity::find_by_id(user_id)
-        .one(db.conn.as_ref())
+    let user = UserRepository::new(db.conn.clone())
+        .find_by_id(user_id)
         .await;
 
     match user {
-        Ok(user) => match user {
-            Some(user) => response::Default::new(UserView {
-                id: Some(user.id.to_string()),
-                email: user.email,
-                ..Default::default()
-            })
-            .json(),
-            None => response::Error::new("User not found".into()).json(),
-        },
-        Err(_) => response::Error::new("Internal server error".into()).json(),
+        Ok(user) => response::Default::new(UserView {
+            id: Some(user.id.to_string()),
+            email: user.email,
+            ..Default::default()
+        })
+        .json(),
+        Err(e) => response::Error::new(e.to_string()).json(),
     }
 }
 

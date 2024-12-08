@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use chrono::Utc;
+use validator::Validate;
 
 use crate::domain::user::{aggregate::User, event::UserEvent};
 
@@ -40,6 +41,8 @@ impl Appregate for User {
                     token: None,
                     ..(*self)
                 };
+
+                user.validate().map_err(|e| e.to_string())?;
 
                 service
                     .encrypted_password(&mut user)

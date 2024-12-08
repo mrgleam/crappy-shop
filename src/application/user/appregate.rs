@@ -37,6 +37,7 @@ impl Appregate for User {
                     password,
                     created_at: now,
                     updated_at: now,
+                    token: None,
                     ..(*self)
                 };
 
@@ -67,7 +68,7 @@ impl Appregate for User {
                     password,
                     created_at: now,
                     updated_at: now,
-                    ..(*self)
+                    token: None,
                 };
                 service
                     .encrypted_password(&mut user)
@@ -97,6 +98,9 @@ impl Appregate for User {
                 self.id = Some(id);
                 self.email = email;
                 self.updated_at = date;
+            }
+            UserEvent::LoggedIn { token } => {
+                self.token = Some(token);
             }
         }
     }

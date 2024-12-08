@@ -13,4 +13,7 @@ pub enum UserEvent {
         email: String,
         date: DateTime<Utc>,
     },
+    LoggedIn {
+        token: String,
+    },
 }

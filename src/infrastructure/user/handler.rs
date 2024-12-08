@@ -3,8 +3,10 @@ use crate::application::user::command::UserCommand;
 use crate::application::user::service::UserService;
 use crate::domain::user::aggregate::User;
 use crate::domain::user::view::UserView;
+use crate::infrastructure::error::APIError;
 use crate::infrastructure::response;
 use crate::infrastructure::AppState;
+use actix_web::ResponseError;
 use actix_web::{web, Responder};
 
 use super::input::CreateUser;
@@ -26,18 +28,14 @@ pub async fn index(db: web::Data<AppState>) -> impl Responder {
 
 pub async fn get_by_id(path: web::Path<i32>, db: web::Data<AppState>) -> impl Responder {
     let user_id = path.into_inner();
-    let user = UserRepository::new(db.conn.clone())
-        .find_by_id(user_id)
-        .await;
+
+    let repository = UserRepository::new(db.conn.clone());
+    let service: UserService = UserService::new(repository);
+    let user = service.get_by_id(user_id).await;
 
     match user {
-        Ok(user) => response::Default::new(UserView {
-            id: Some(user.id.to_string()),
-            email: user.email,
-            ..Default::default()
-        })
-        .json(),
-        Err(e) => response::Error::new(e.to_string()).json(),
+        Ok(user) => response::Default::new(user).json(),
+        Err(e) => APIError::from(e).error_response(),
     }
 }
 
@@ -50,7 +48,7 @@ pub async fn create(body: web::Json<CreateUser>, db: web::Data<AppState>) -> imp
         .await;
     match user_event {
         Ok(_) => response::Created::into(),
-        Err(_) => response::Error::new("Internal server error".into()).json(),
+        Err(e) => APIError::from(e).error_response(),
     }
 }
 
@@ -70,6 +68,6 @@ pub async fn update(body: web::Json<UpdateUser>, db: web::Data<AppState>) -> imp
         });
     match user_event {
         Ok(_) => response::Default::new(UserView::from(user)).json(),
-        Err(e) => response::Error::new(e.into()).json(),
+        Err(e) => APIError::from(e).error_response(),
     }
 }

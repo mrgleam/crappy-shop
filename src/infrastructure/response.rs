@@ -23,17 +23,3 @@ impl Created {
         HttpResponse::Created().into()
     }
 }
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Error {
-    message: String,
-}
-
-impl Error {
-    pub fn new(message: String) -> Self {
-        Self { message }
-    }
-    pub fn json(&self) -> HttpResponse {
-        HttpResponse::InternalServerError().json(&self)
-    }
-}

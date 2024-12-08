@@ -1,5 +1,5 @@
 use crate::{
-    domain::user::{aggregate::User, error::UserError},
+    domain::user::{aggregate::User, error::UserError, view::UserView},
     infrastructure::user::repository::UserRepository,
 };
 
@@ -19,6 +19,19 @@ impl UserService {
                 user.password = result;
                 Ok(user)
             }
+            Err(e) => Err(UserError::from(e)),
+        }
+    }
+
+    pub async fn get_by_id(&self, id: i32) -> Result<UserView, UserError> {
+        let user = self.repository.find_by_id(id).await;
+        match user {
+            Ok(user) => Ok(UserView {
+                id: Some(user.id.to_string()),
+                email: user.email,
+                created_at: Some(user.created_at.to_utc()),
+                updated_at: Some(user.updated_at.to_utc()),
+            }),
             Err(e) => Err(UserError::from(e)),
         }
     }

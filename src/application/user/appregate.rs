@@ -15,7 +15,7 @@ pub trait Appregate {
         &self,
         command: Self::Command,
         service: &Self::Service,
-    ) -> Result<Self::Event, String>;
+    ) -> Result<Self::Event, UserError>;
     fn apply(&mut self, event: Self::Event);
 }
 
@@ -29,7 +29,7 @@ impl Appregate for User {
         &self,
         command: Self::Command,
         service: &Self::Service,
-    ) -> Result<Self::Event, String> {
+    ) -> Result<Self::Event, UserError> {
         match command {
             UserCommand::Create { email, password } => {
                 let now = Utc::now();
@@ -43,11 +43,9 @@ impl Appregate for User {
                 };
 
                 user.validate()
-                    .map_err(|e: validator::ValidationErrors| UserError::from(e).to_string())?;
+                    .map_err(|e: validator::ValidationErrors| UserError::from(e))?;
 
-                service
-                    .encrypted_password(&mut user)
-                    .map_err(|e| e.to_string())?;
+                service.encrypted_password(&mut user)?;
 
                 let created = service.create(&user).await;
 
@@ -57,7 +55,7 @@ impl Appregate for User {
                         email: user.email,
                         date: now,
                     }),
-                    Err(e) => Err(e.to_string()),
+                    Err(e) => Err(e),
                 }
             }
             UserCommand::Update {
@@ -76,11 +74,9 @@ impl Appregate for User {
                 };
 
                 user.validate()
-                    .map_err(|e: validator::ValidationErrors| UserError::from(e).to_string())?;
+                    .map_err(|e: validator::ValidationErrors| UserError::from(e))?;
 
-                service
-                    .encrypted_password(&mut user)
-                    .map_err(|e| e.to_string())?;
+                service.encrypted_password(&mut user)?;
 
                 let updated = service.update(&user).await;
                 match updated {
@@ -89,7 +85,7 @@ impl Appregate for User {
                         email: user.email,
                         date: now,
                     }),
-                    Err(e) => Err(e.to_string()),
+                    Err(e) => Err(e),
                 }
             }
         }

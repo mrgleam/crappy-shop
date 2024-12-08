@@ -1,3 +1,4 @@
+mod error;
 mod handler;
 mod input;
 pub mod repository;

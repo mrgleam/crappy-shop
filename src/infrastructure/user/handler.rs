@@ -55,19 +55,21 @@ pub async fn create(body: web::Json<CreateUser>, db: web::Data<AppState>) -> imp
 }
 
 pub async fn update(body: web::Json<UpdateUser>, db: web::Data<AppState>) -> impl Responder {
-    let user = body.into_inner();
+    let update_user = body.into_inner();
     let repository = UserRepository::new(db.conn.clone());
     let service = UserService::new(repository);
-    let user_event = User::new()
+    let mut user = User::new();
+    let user_event = user
         .handle(
-            UserCommand::update(user.id, user.email, user.password),
+            UserCommand::update(update_user.id, update_user.email, update_user.password),
             &service,
         )
-        .await;
-    match user_event {
-        Ok(event) => {
-            let mut user = User::new();
+        .await
+        .map(|event| {
             user.apply(event);
+        });
+    match user_event {
+        Ok(_) => {
             response::Default::new(UserView::from(user)).json()
         }
         Err(_) => response::Error::new("Internal server error".into()).json(),

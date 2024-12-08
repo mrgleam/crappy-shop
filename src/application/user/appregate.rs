@@ -42,7 +42,7 @@ impl Appregate for User {
                     ..(*self)
                 };
 
-                user.validate().map_err(|e| e.to_string())?;
+                user.validate().map_err(|e: validator::ValidationErrors| e.to_string())?;
 
                 service
                     .encrypted_password(&mut user)
@@ -73,6 +73,9 @@ impl Appregate for User {
                     updated_at: now,
                     token: None,
                 };
+
+                user.validate().map_err(|e: validator::ValidationErrors| e.to_string())?;
+
                 service
                     .encrypted_password(&mut user)
                     .map_err(|e| e.to_string())?;

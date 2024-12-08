@@ -19,7 +19,7 @@ impl UserService {
                 user.password = result;
                 Ok(user)
             }
-            Err(e) => Err(UserError::from(e.to_string().as_str())),
+            Err(e) => Err(UserError::from(e)),
         }
     }
 
@@ -27,7 +27,7 @@ impl UserService {
         let created = self.repository.save(&user).await;
         match created {
             Ok(result) => Ok(result.last_insert_id),
-            Err(e) => Err(UserError::from(e.to_string().as_str())),
+            Err(e) => Err(UserError::from(e)),
         }
     }
 
@@ -35,7 +35,7 @@ impl UserService {
         let updated = self.repository.update(&user).await;
         match updated {
             Ok(result) => Ok(result.rows_affected),
-            Err(e) => Err(UserError::from(e.to_string().as_str())),
+            Err(e) => Err(UserError::from(e)),
         }
     }
 }

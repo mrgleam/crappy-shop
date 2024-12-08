@@ -70,6 +70,6 @@ pub async fn update(body: web::Json<UpdateUser>, db: web::Data<AppState>) -> imp
         });
     match user_event {
         Ok(_) => response::Default::new(UserView::from(user)).json(),
-        Err(_) => response::Error::new("Internal server error".into()).json(),
+        Err(e) => response::Error::new(e.into()).json(),
     }
 }

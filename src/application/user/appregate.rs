@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use validator::Validate;
 
-use crate::domain::user::{aggregate::User, event::UserEvent};
+use crate::domain::user::{aggregate::User, error::UserError, event::UserEvent};
 
 use super::{command::UserCommand, service::UserService};
 
@@ -43,7 +43,7 @@ impl Appregate for User {
                 };
 
                 user.validate()
-                    .map_err(|e: validator::ValidationErrors| e.to_string())?;
+                    .map_err(|e: validator::ValidationErrors| UserError::from(e).to_string())?;
 
                 service
                     .encrypted_password(&mut user)
@@ -76,7 +76,7 @@ impl Appregate for User {
                 };
 
                 user.validate()
-                    .map_err(|e: validator::ValidationErrors| e.to_string())?;
+                    .map_err(|e: validator::ValidationErrors| UserError::from(e).to_string())?;
 
                 service
                     .encrypted_password(&mut user)

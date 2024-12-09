@@ -17,7 +17,7 @@ impl MigrationTrait for Migration {
         for _ in 1..11 {
             let product = product::ActiveModel {
                 name: Set(Word().fake()),
-                price: Set((8.0..20.0).fake::<f32>()),
+                price: Set(((8.0..20.0).fake::<f32>() * 100.0).round() / 100.0),
                 description: Set(Paragraph(1..3).fake()),
                 ..Default::default()
             };

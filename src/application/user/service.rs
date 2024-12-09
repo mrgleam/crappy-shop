@@ -29,6 +29,7 @@ impl UserService {
             Ok(user) => Ok(UserView {
                 id: Some(user.id.to_string()),
                 email: user.email,
+                token: None,
                 created_at: Some(user.created_at.to_utc()),
                 updated_at: Some(user.updated_at.to_utc()),
             }),
@@ -48,6 +49,14 @@ impl UserService {
         let updated = self.repository.update(&user).await;
         match updated {
             Ok(result) => Ok(result.rows_affected),
+            Err(e) => Err(UserError::from(e)),
+        }
+    }
+
+    pub async fn signin(&self, email: String, password: String) -> Result<bool, UserError> {
+        let user = self.repository.find_by_email(email).await;
+        match user {
+            Ok(user) => bcrypt::verify(&password, &user.password).map_err(|e| UserError::from(e)),
             Err(e) => Err(UserError::from(e)),
         }
     }

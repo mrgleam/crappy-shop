@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use entity::user;
-use sea_orm::{ActiveValue, DatabaseConnection, DbErr, EntityTrait, InsertResult, UpdateResult};
+use sea_orm::{
+    ActiveValue, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, InsertResult, QueryFilter,
+    UpdateResult,
+};
 
 use crate::domain::user::aggregate::User;
 
@@ -53,5 +56,16 @@ impl UserRepository {
         };
         user::Entity::update(model).exec(self.db.as_ref()).await?;
         Ok(UpdateResult { rows_affected: 1 })
+    }
+
+    pub async fn find_by_email(&self, email: String) -> Result<user::Model, DbErr> {
+        let result = user::Entity::find()
+            .filter(user::Column::Email.eq(email))
+            .one(self.db.as_ref())
+            .await;
+        match result {
+            Ok(Some(m)) => Ok(m),
+            _ => Err(DbErr::RecordNotFound("User not found".into())),
+        }
     }
 }

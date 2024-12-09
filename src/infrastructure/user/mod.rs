@@ -15,6 +15,7 @@ pub fn configure(config: &mut ServiceConfig) {
             .route("", get().to(handler::index))
             .route("{id}", get().to(handler::get_by_id))
             .route("", patch().to(handler::update))
-            .route("/signup", post().to(handler::create)), // .route("/signin", post().to(handler::signin)),
+            .route("/signup", post().to(handler::create))
+            .route("/signin", post().to(handler::signin)),
     );
 }

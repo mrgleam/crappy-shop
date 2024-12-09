@@ -11,6 +11,8 @@ pub struct UserView {
     pub id: Option<String>,
     pub email: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub token: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub created_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<DateTime<Utc>>,
@@ -21,7 +23,7 @@ impl From<User> for UserView {
         UserView {
             id: user.id.map(|id| id.to_string()),
             email: user.email,
-            updated_at: Some(user.updated_at),
+            token: user.token,
             ..Default::default()
         }
     }

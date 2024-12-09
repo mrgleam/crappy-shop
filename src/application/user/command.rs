@@ -11,6 +11,10 @@ pub enum UserCommand {
         email: String,
         password: String,
     },
+    SignIn {
+        email: String,
+        password: String,
+    },
 }
 
 impl UserCommand {
@@ -24,5 +28,9 @@ impl UserCommand {
             email,
             password,
         }
+    }
+
+    pub fn signin(email: String, password: String) -> Self {
+        UserCommand::SignIn { email, password }
     }
 }

@@ -88,6 +88,27 @@ impl Appregate for User {
                     Err(e) => Err(e),
                 }
             }
+            UserCommand::SignIn { email, password } => {
+                let user = User {
+                    email: email.clone(),
+                    password,
+                    token: None,
+                    ..(*self)
+                };
+                user.validate()
+                    .map_err(|e: validator::ValidationErrors| UserError::from(e))?;
+                let logged_in = service.signin(user.email, user.password).await;
+                match logged_in {
+                    Ok(true) => Ok(UserEvent::LoggedIn {
+                        email,
+                        token: "mock_success_token".to_string(),
+                    }),
+                    Ok(false) => Err(UserError::from(UserError::VerificationFailed(
+                        "Invalid email or password".to_string(),
+                    ))),
+                    Err(e) => Err(e),
+                }
+            }
         }
     }
 
@@ -103,7 +124,8 @@ impl Appregate for User {
                 self.email = email;
                 self.updated_at = date;
             }
-            UserEvent::LoggedIn { token } => {
+            UserEvent::LoggedIn { email, token } => {
+                self.email = email;
                 self.token = Some(token);
             }
         }

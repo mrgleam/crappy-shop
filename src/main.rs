@@ -51,9 +51,7 @@ async fn init() -> Result<(), Error> {
                     )
                     .service(
                         web::scope("/protected/resources")
-                            .wrap(JwtMiddleware::new(
-                                state.authentication_config.secret.as_str(),
-                            ))
+                            .wrap(JwtMiddleware::new())
                             .configure(infrastructure::user::protected_configure),
                     ),
             )

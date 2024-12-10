@@ -6,8 +6,8 @@ use log;
 
 use crate::config::DatabaseConfig;
 
-pub async fn new(config: DatabaseConfig) -> DatabaseConnection {
-    let mut opt = ConnectOptions::new(config.database_url);
+pub async fn new(config: &DatabaseConfig) -> DatabaseConnection {
+    let mut opt = ConnectOptions::new(&config.database_url);
     opt.max_connections(100)
         .min_connections(5)
         .connect_timeout(Duration::from_secs(8))

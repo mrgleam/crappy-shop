@@ -11,6 +11,7 @@ pub enum UserError {
     HashingFailed(String),
     VerificationFailed(String),
     Other(String),
+    TokenCreationFailed(String),
 }
 
 impl Display for UserError {
@@ -20,11 +21,11 @@ impl Display for UserError {
             UserError::DatabaseError(msg) => write!(f, "Database Error: {}", msg),
             UserError::HashingFailed(msg) => write!(f, "Hashing Error: {}", msg),
             UserError::VerificationFailed(msg) => write!(f, "Verification Error: {}", msg),
+            UserError::TokenCreationFailed(msg) => write!(f, "Token Creation Error: {}", msg),
             UserError::Other(msg) => write!(f, "Other Error: {}", msg),
         }
     }
 }
-
 impl From<DbErr> for UserError {
     fn from(err: DbErr) -> Self {
         match err {
@@ -95,5 +96,11 @@ fn extract_validation_messages(errors_kind: &ValidationErrorsKind) -> String {
                 .collect();
             messages.join(", ")
         }
+    }
+}
+
+impl From<jsonwebtoken::errors::Error> for UserError {
+    fn from(err: jsonwebtoken::errors::Error) -> Self {
+        UserError::TokenCreationFailed(err.to_string())
     }
 }

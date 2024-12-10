@@ -30,8 +30,8 @@ pub async fn index(db: web::Data<AppState>) -> impl Responder {
 pub async fn get_by_id(path: web::Path<i32>, db: web::Data<AppState>) -> impl Responder {
     let user_id = path.into_inner();
 
-    let repository = UserRepository::new(db.conn.clone());
-    let service: UserService = UserService::new(repository);
+    let repository: UserRepository = UserRepository::new(db.conn.clone());
+    let service: UserService = UserService::new(repository, db.authentication_config.clone());
     let user = service.get_by_id(user_id).await;
 
     match user {
@@ -43,7 +43,7 @@ pub async fn get_by_id(path: web::Path<i32>, db: web::Data<AppState>) -> impl Re
 pub async fn create(body: web::Json<CreateUser>, db: web::Data<AppState>) -> impl Responder {
     let user = body.into_inner();
     let repository = UserRepository::new(db.conn.clone());
-    let service = UserService::new(repository);
+    let service = UserService::new(repository, db.authentication_config.clone());
     let user_event = User::new()
         .handle(UserCommand::create(user.email, user.password), &service)
         .await;
@@ -56,7 +56,7 @@ pub async fn create(body: web::Json<CreateUser>, db: web::Data<AppState>) -> imp
 pub async fn update(body: web::Json<UpdateUser>, db: web::Data<AppState>) -> impl Responder {
     let update_user = body.into_inner();
     let repository = UserRepository::new(db.conn.clone());
-    let service = UserService::new(repository);
+    let service = UserService::new(repository, db.authentication_config.clone());
     let mut user = User::new();
     let user_event = user
         .handle(
@@ -76,7 +76,7 @@ pub async fn update(body: web::Json<UpdateUser>, db: web::Data<AppState>) -> imp
 pub async fn signin(body: web::Json<SignInUser>, db: web::Data<AppState>) -> impl Responder {
     let signin_user = body.into_inner();
     let repository = UserRepository::new(db.conn.clone());
-    let service = UserService::new(repository);
+    let service = UserService::new(repository, db.authentication_config.clone());
     let mut user = User::new();
     let user_event = user
         .handle(

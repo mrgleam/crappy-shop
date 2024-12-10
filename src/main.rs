@@ -22,11 +22,15 @@ fn main() -> Result<(), Error> {
 
 async fn init() -> Result<(), Error> {
     let config = Config::load();
-    let conn = database::new(config.database).await;
+    let conn = database::new(&config.database).await;
     Migrator::up(&conn, None).await.expect("Failed to migrate");
-    let conn = Arc::new(conn);
 
-    let state = AppState { conn };
+    let state = AppState {
+        conn: Arc::new(conn),
+        authentication_config: Arc::new(config.authentication),
+    };
+
+    let addr = (config.http_server.host.as_str(), config.http_server.port);
 
     HttpServer::new(move || {
         App::new()
@@ -34,7 +38,7 @@ async fn init() -> Result<(), Error> {
             .service(health)
             .service(web::scope("/api").configure(infrastructure::user::configure))
     })
-    .bind((config.http_server.host, config.http_server.port))?
+    .bind(addr)?
     .run()
     .await
 }

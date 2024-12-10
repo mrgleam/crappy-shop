@@ -97,17 +97,12 @@ impl Appregate for User {
                 };
                 user.validate()
                     .map_err(|e: validator::ValidationErrors| UserError::from(e))?;
-                let logged_in = service.signin(&user.email, &user.password).await;
-                match logged_in {
-                    Ok(true) => Ok(UserEvent::LoggedIn {
-                        email,
-                        token: "mock_success_token".to_string(),
-                    }),
-                    Ok(false) => Err(UserError::from(UserError::VerificationFailed(
-                        "Invalid email or password".to_string(),
-                    ))),
-                    Err(e) => Err(e),
-                }
+                let logged_in = service.signin(&user.email, &user.password).await?;
+                let token = service.create_token(logged_in)?;
+                Ok(UserEvent::LoggedIn {
+                    email: user.email,
+                    token,
+                })
             }
         }
     }

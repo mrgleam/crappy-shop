@@ -1,4 +1,4 @@
-use crate::application::user::appregate::Appregate;
+use crate::application::user::aggregate::Aggregate;
 use crate::application::user::command::UserCommand;
 use crate::application::user::service::UserService;
 use crate::domain::user::aggregate::User;

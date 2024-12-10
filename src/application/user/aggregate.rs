@@ -7,7 +7,7 @@ use crate::domain::user::{aggregate::User, error::UserError, event::UserEvent};
 use super::{command::UserCommand, service::UserService};
 
 #[async_trait]
-pub trait Appregate {
+pub trait Aggregate {
     type Command;
     type Event;
     type Service;
@@ -20,7 +20,7 @@ pub trait Appregate {
 }
 
 #[async_trait]
-impl Appregate for User {
+impl Aggregate for User {
     type Command = UserCommand;
     type Event = UserEvent;
     type Service = UserService;

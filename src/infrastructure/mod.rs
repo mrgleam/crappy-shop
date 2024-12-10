@@ -9,16 +9,8 @@ use sea_orm::DatabaseConnection;
 
 use crate::config::AuthenticationConfig;
 
+#[derive(Clone)]
 pub struct AppState {
     pub conn: Arc<DatabaseConnection>,
     pub authentication_config: Arc<AuthenticationConfig>,
-}
-
-impl Clone for AppState {
-    fn clone(&self) -> Self {
-        AppState {
-            conn: Arc::clone(&self.conn),
-            authentication_config: Arc::clone(&self.authentication_config),
-        }
-    }
 }

@@ -53,10 +53,10 @@ impl UserService {
         }
     }
 
-    pub async fn signin(&self, email: String, password: String) -> Result<bool, UserError> {
+    pub async fn signin(&self, email: &str, password: &str) -> Result<bool, UserError> {
         let user = self.repository.find_by_email(email).await;
         match user {
-            Ok(user) => bcrypt::verify(&password, &user.password).map_err(|e| UserError::from(e)),
+            Ok(user) => bcrypt::verify(password, &user.password).map_err(|e| UserError::from(e)),
             Err(e) => Err(UserError::from(e)),
         }
     }

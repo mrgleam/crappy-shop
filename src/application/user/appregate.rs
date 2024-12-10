@@ -97,7 +97,7 @@ impl Appregate for User {
                 };
                 user.validate()
                     .map_err(|e: validator::ValidationErrors| UserError::from(e))?;
-                let logged_in = service.signin(user.email, user.password).await;
+                let logged_in = service.signin(&user.email, &user.password).await;
                 match logged_in {
                     Ok(true) => Ok(UserEvent::LoggedIn {
                         email,

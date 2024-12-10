@@ -58,7 +58,7 @@ impl UserRepository {
         Ok(UpdateResult { rows_affected: 1 })
     }
 
-    pub async fn find_by_email(&self, email: String) -> Result<user::Model, DbErr> {
+    pub async fn find_by_email(&self, email: &str) -> Result<user::Model, DbErr> {
         let result = user::Entity::find()
             .filter(user::Column::Email.eq(email))
             .one(self.db.as_ref())

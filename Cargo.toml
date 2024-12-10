@@ -22,3 +22,5 @@ async-trait = "0.1.83"
 bcrypt = "0.16.0"
 validator = { version = "0.19", features = ["derive"] }
 jsonwebtoken = "9.3.0"
+futures-util = "0.3.31"
+env_logger = "0.11.5"

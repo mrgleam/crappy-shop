@@ -36,7 +36,11 @@ async fn init() -> Result<(), Error> {
         App::new()
             .app_data(web::Data::new(state.clone()))
             .service(health)
-            .service(web::scope("/api").configure(infrastructure::user::configure))
+            .service(
+                web::scope("/api")
+                    .configure(infrastructure::user::configure)
+                    .configure(infrastructure::product::configure),
+            )
     })
     .bind(addr)?
     .run()

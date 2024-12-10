@@ -1,4 +1,5 @@
 pub mod error;
+pub mod product;
 pub mod response;
 pub mod user;
 

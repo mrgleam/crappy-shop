@@ -1,9 +1,7 @@
-use crate::domain::product::error::ProductError;
 use crate::domain::product::view::ProductView;
 use crate::infrastructure::error::APIError;
 use crate::infrastructure::response;
 use crate::infrastructure::AppState;
-use actix_web::ResponseError;
 use actix_web::{web, Responder};
 
 use super::repository::ProductRepository;
@@ -42,12 +40,7 @@ pub async fn get_by_id(
             updated_at: Some(product.updated_at.to_utc()),
         })?;
 
-    Ok(web::Json(response::Default::new(product)))
+    // Ok(web::Json(response::Default::new(product)))
 
-    // Ok(response::Default::new(product).json())
-
-    // match product {
-    //     Ok(product) => response::Default::new(product).json(),
-    //     Err(e) => APIError::from(ProductError::from(e)).error_response(),
-    // }
+    Ok(response::Default::new(product).json())
 }

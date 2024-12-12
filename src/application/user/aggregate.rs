@@ -36,8 +36,8 @@ impl Aggregate for User {
                 let mut user = User {
                     email,
                     password,
-                    created_at: now,
-                    updated_at: now,
+                    created_at: Some(now),
+                    updated_at: Some(now),
                     token: None,
                     ..(*self)
                 };
@@ -47,7 +47,7 @@ impl Aggregate for User {
 
                 service.encrypted_password(&mut user)?;
 
-                let created = service.create(user).await;
+                let created = service.save(user).await;
 
                 match created {
                     Ok(u) => Ok(UserEvent::Created {
@@ -68,8 +68,8 @@ impl Aggregate for User {
                     id: Some(id),
                     email,
                     password,
-                    created_at: now,
-                    updated_at: now,
+                    created_at: Some(now),
+                    updated_at: Some(now),
                     token: None,
                 };
 
@@ -78,11 +78,11 @@ impl Aggregate for User {
 
                 service.encrypted_password(&mut user)?;
 
-                let updated = service.update(&user).await;
+                let updated = service.save(user).await;
                 match updated {
-                    Ok(_) => Ok(UserEvent::Updated {
+                    Ok(u) => Ok(UserEvent::Updated {
                         id,
-                        email: user.email,
+                        email: u.email,
                         date: now,
                     }),
                     Err(e) => Err(e),
@@ -112,12 +112,12 @@ impl Aggregate for User {
             UserEvent::Created { id, email, date } => {
                 self.id = Some(id);
                 self.email = email;
-                self.created_at = date;
+                self.created_at = Some(date);
             }
             UserEvent::Updated { id, email, date } => {
                 self.id = Some(id);
                 self.email = email;
-                self.updated_at = date;
+                self.updated_at = Some(date);
             }
             UserEvent::LoggedIn { email, token } => {
                 self.email = email;

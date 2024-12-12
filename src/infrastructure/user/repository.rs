@@ -1,10 +1,7 @@
 use std::sync::Arc;
 
 use entity::user;
-use sea_orm::{
-    ActiveValue, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, InsertResult, QueryFilter,
-    UpdateResult,
-};
+use sea_orm::{ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter};
 
 use sea_orm::ActiveModelTrait;
 
@@ -37,28 +34,9 @@ impl UserRepository {
     }
 
     pub async fn save(&self, user: User) -> Result<user::Model, DbErr> {
-        let model = user::ActiveModel {
-            id: ActiveValue::NotSet,
-            email: ActiveValue::Set(user.email),
-            password: ActiveValue::Set(user.password),
-            created_at: ActiveValue::Set(user.created_at.into()),
-            updated_at: ActiveValue::Set(user.updated_at.into()),
-        };
-
-        let saved = model.save(self.db.as_ref()).await?;
+        let active_model: user::ActiveModel = user.into();
+        let saved = active_model.save(self.db.as_ref()).await?;
         saved.try_into_model()
-    }
-
-    pub async fn update(&self, user: &User) -> Result<UpdateResult, DbErr> {
-        let model = user::ActiveModel {
-            id: user.id.map(ActiveValue::Set).unwrap_or(ActiveValue::NotSet),
-            email: ActiveValue::Set(user.email.clone()),
-            updated_at: ActiveValue::Set(user.updated_at.into()),
-            password: ActiveValue::Set(user.password.clone()),
-            created_at: ActiveValue::Set(user.created_at.into()),
-        };
-        user::Entity::update(model).exec(self.db.as_ref()).await?;
-        Ok(UpdateResult { rows_affected: 1 })
     }
 
     pub async fn find_by_email(&self, email: &str) -> Result<user::Model, DbErr> {

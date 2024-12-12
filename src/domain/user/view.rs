@@ -24,7 +24,8 @@ impl From<User> for UserView {
             id: user.id.map(|id| id.to_string()),
             email: user.email,
             token: user.token,
-            ..Default::default()
+            updated_at: user.updated_at,
+            created_at: user.created_at,
         }
     }
 }

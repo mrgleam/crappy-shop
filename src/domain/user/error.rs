@@ -4,7 +4,7 @@ use bcrypt::BcryptError;
 use sea_orm::DbErr;
 use validator::{ValidationErrors, ValidationErrorsKind};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum UserError {
     NotFound,
     DatabaseError(String),

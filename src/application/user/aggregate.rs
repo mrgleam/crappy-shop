@@ -47,12 +47,12 @@ impl Aggregate for User {
 
                 service.encrypted_password(&mut user)?;
 
-                let created = service.create(&user).await;
+                let created = service.create(user).await;
 
                 match created {
-                    Ok(id) => Ok(UserEvent::Created {
-                        id,
-                        email: user.email,
+                    Ok(u) => Ok(UserEvent::Created {
+                        id: u.id.unwrap_or_default(),
+                        email: u.email,
                         date: now,
                     }),
                     Err(e) => Err(e),

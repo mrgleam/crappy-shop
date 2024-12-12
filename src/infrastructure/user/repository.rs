@@ -6,6 +6,10 @@ use sea_orm::{
     UpdateResult,
 };
 
+use sea_orm::ActiveModelTrait;
+
+use sea_orm::TryIntoModel;
+
 use crate::domain::user::aggregate::User;
 
 pub struct UserRepository {
@@ -32,18 +36,17 @@ impl UserRepository {
         }
     }
 
-    pub async fn save(
-        &self,
-        user: &User,
-    ) -> Result<InsertResult<entity::user::ActiveModel>, DbErr> {
+    pub async fn save(&self, user: User) -> Result<user::Model, DbErr> {
         let model = user::ActiveModel {
             id: ActiveValue::NotSet,
-            email: ActiveValue::Set(user.email.clone()),
-            password: ActiveValue::Set(user.password.clone()),
+            email: ActiveValue::Set(user.email),
+            password: ActiveValue::Set(user.password),
             created_at: ActiveValue::Set(user.created_at.into()),
             updated_at: ActiveValue::Set(user.updated_at.into()),
         };
-        user::Entity::insert(model).exec(self.db.as_ref()).await
+
+        let saved = model.save(self.db.as_ref()).await?;
+        saved.try_into_model()
     }
 
     pub async fn update(&self, user: &User) -> Result<UpdateResult, DbErr> {

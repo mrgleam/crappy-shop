@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use entity::user;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
@@ -21,5 +22,18 @@ pub struct User {
 impl User {
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl From<user::Model> for User {
+    fn from(value: user::Model) -> Self {
+        User {
+            id: Some(value.id),
+            email: value.email,
+            password: value.password,
+            created_at: value.created_at.to_utc(),
+            updated_at: value.updated_at.to_utc(),
+            token: None,
+        }
     }
 }

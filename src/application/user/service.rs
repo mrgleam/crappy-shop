@@ -78,10 +78,10 @@ impl UserService {
         }
     }
 
-    pub async fn create(&self, user: &User) -> Result<i32, UserError> {
-        let created = self.repository.save(&user).await;
+    pub async fn create(&self, user: User) -> Result<User, UserError> {
+        let created = self.repository.save(user).await;
         match created {
-            Ok(result) => Ok(result.last_insert_id),
+            Ok(result) => Ok(result.into()),
             Err(e) => Err(UserError::from(e)),
         }
     }

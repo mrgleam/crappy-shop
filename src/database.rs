@@ -14,7 +14,7 @@ pub async fn new(config: &DatabaseConfig) -> DatabaseConnection {
         .acquire_timeout(Duration::from_secs(8))
         .idle_timeout(Duration::from_secs(8))
         .max_lifetime(Duration::from_secs(8))
-        .sqlx_logging(true)
+        .sqlx_logging(false)
         .sqlx_logging_level(log::LevelFilter::Info)
         .set_schema_search_path("public"); // Setting default PostgreSQL schema
 

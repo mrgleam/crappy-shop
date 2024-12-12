@@ -52,7 +52,8 @@ async fn init() -> Result<(), Error> {
                     .service(
                         web::scope("/protected/resources")
                             .wrap(JwtMiddleware::new())
-                            .configure(infrastructure::user::protected_configure),
+                            .configure(infrastructure::user::protected_configure)
+                            .configure(infrastructure::cart::protected_configure),
                     ),
             )
     })

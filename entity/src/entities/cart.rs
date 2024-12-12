@@ -3,28 +3,39 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "product")]
+#[sea_orm(table_name = "cart")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub name: String,
-    #[sea_orm(column_type = "Decimal(Some((10, 2)))")]
-    pub price: Decimal,
-    pub description: String,
+    #[sea_orm(unique)]
+    pub user_id: i32,
     pub created_at: DateTimeWithTimeZone,
     pub updated_at: DateTimeWithTimeZone,
-    pub deleted_at: Option<DateTimeWithTimeZone>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(has_many = "super::cart_item::Entity")]
     CartItem,
+    #[sea_orm(
+        belongs_to = "super::user::Entity",
+        from = "Column::UserId",
+        to = "super::user::Column::Id",
+        on_update = "NoAction",
+        on_delete = "Cascade"
+    )]
+    User,
 }
 
 impl Related<super::cart_item::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::CartItem.def()
+    }
+}
+
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
     }
 }
 

@@ -1,21 +1,15 @@
 use actix_web::{body::BoxBody, http::StatusCode, HttpResponse, ResponseError};
+use derive_more::{derive::Display, From};
+use sea_orm::DbErr;
 use serde_json::json;
 
-#[derive(Debug)]
+#[derive(Debug, From, Display)]
 pub enum APIError {
     NotFound(String),
     BadRequest(String),
     Server(String),
-}
-
-impl std::fmt::Display for APIError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            APIError::NotFound(msg) => write!(f, "Not Found: {}", msg),
-            APIError::BadRequest(msg) => write!(f, "Bad Request: {}", msg),
-            APIError::Server(msg) => write!(f, "Server Error: {}", msg),
-        }
-    }
+    #[from]
+    Database(DbErr),
 }
 
 impl ResponseError for APIError {
@@ -26,6 +20,7 @@ impl ResponseError for APIError {
             APIError::BadRequest(msg) => response.json(json!({ "error": msg })),
             APIError::Server(msg) => response.json(json!({ "error": msg })),
             APIError::NotFound(msg) => response.json(json!({ "error": msg })),
+            APIError::Database(err) => response.json(json!({ "error": err.to_string() })),
         }
     }
 
@@ -34,6 +29,7 @@ impl ResponseError for APIError {
             APIError::BadRequest(_) => StatusCode::BAD_REQUEST,
             APIError::Server(_) => StatusCode::INTERNAL_SERVER_ERROR,
             APIError::NotFound(_) => StatusCode::NOT_FOUND,
+            APIError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }

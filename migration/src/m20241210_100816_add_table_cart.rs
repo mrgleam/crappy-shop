@@ -1,5 +1,7 @@
 use sea_orm_migration::{prelude::*, schema::*};
 
+use crate::m20241205_083431_create_table_user::User;
+
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
@@ -9,22 +11,33 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(User::Table)
+                    .table(Cart::Table)
                     .if_not_exists()
-                    .col(pk_auto(User::Id))
-                    .col(ColumnDef::new(User::Email).string().not_null().unique_key())
-                    .col(ColumnDef::new(User::Password).string().not_null())
+                    .col(pk_auto(Cart::Id))
+                    .col(ColumnDef::new(Cart::UserId).integer().not_null())
                     .col(
-                        ColumnDef::new(User::CreatedAt)
+                        ColumnDef::new(Cart::CreatedAt)
                             .timestamp_with_time_zone()
                             .not_null()
                             .default(Expr::current_timestamp()),
                     )
                     .col(
-                        ColumnDef::new(User::UpdatedAt)
+                        ColumnDef::new(Cart::UpdatedAt)
                             .timestamp_with_time_zone()
                             .not_null()
                             .default(Expr::current_timestamp()),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(Cart::Table, Cart::UserId)
+                            .to(User::Table, User::Id)
+                            .on_delete(ForeignKeyAction::Cascade),
+                    )
+                    .index(
+                        Index::create()
+                            .name("user_id_key")
+                            .col(Cart::UserId)
+                            .unique(),
                     )
                     .to_owned(),
             )
@@ -33,17 +46,16 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(User::Table).to_owned())
+            .drop_table(Table::drop().table(Cart::Table).to_owned())
             .await
     }
 }
 
 #[derive(DeriveIden)]
-pub enum User {
+pub enum Cart {
     Table,
     Id,
-    Email,
-    Password,
+    UserId,
     CreatedAt,
     UpdatedAt,
 }

@@ -13,7 +13,12 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(pk_auto(Product::Id))
                     .col(string(Product::Name).not_null())
-                    .col(float(Product::Price).not_null().default(0.0))
+                    .col(
+                        float(Product::Price)
+                            .decimal_len(10, 2)
+                            .not_null()
+                            .default(0.0),
+                    )
                     .col(string(Product::Description))
                     .col(
                         timestamp(Product::CreatedAt)
@@ -41,7 +46,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
-enum Product {
+pub enum Product {
     Table,
     Id,
     Name,

@@ -1,6 +1,7 @@
 use entity::product;
 use fake::faker::lorem::en::*;
 use fake::Fake;
+use rust_decimal::Decimal;
 use sea_orm::{EntityTrait, Set};
 use sea_orm_migration::prelude::*;
 
@@ -17,7 +18,7 @@ impl MigrationTrait for Migration {
         for _ in 1..11 {
             let product = product::ActiveModel {
                 name: Set(Word().fake()),
-                price: Set(((8.0..20.0).fake::<f32>() * 100.0).round() / 100.0),
+                price: Set(Decimal::new((100..999).fake::<i64>(), 2)),
                 description: Set(Paragraph(1..3).fake()),
                 ..Default::default()
             };

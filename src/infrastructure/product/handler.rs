@@ -24,7 +24,10 @@ pub async fn index(db: web::Data<AppState>) -> impl Responder {
     response::Default::new(products).json()
 }
 
-pub async fn get_by_id(path: web::Path<i32>, db: web::Data<AppState>) -> impl Responder {
+pub async fn get_by_id(
+    path: web::Path<i32>,
+    db: web::Data<AppState>,
+) -> Result<impl Responder, APIError> {
     let product_id = path.into_inner();
 
     let product = ProductRepository::new(db.conn.clone())
@@ -37,10 +40,14 @@ pub async fn get_by_id(path: web::Path<i32>, db: web::Data<AppState>) -> impl Re
             description: product.description.clone(),
             created_at: Some(product.created_at.to_utc()),
             updated_at: Some(product.updated_at.to_utc()),
-        });
+        })?;
 
-    match product {
-        Ok(product) => response::Default::new(product).json(),
-        Err(e) => APIError::from(ProductError::from(e)).error_response(),
-    }
+    Ok(web::Json(response::Default::new(product)))
+
+    // Ok(response::Default::new(product).json())
+
+    // match product {
+    //     Ok(product) => response::Default::new(product).json(),
+    //     Err(e) => APIError::from(ProductError::from(e)).error_response(),
+    // }
 }
